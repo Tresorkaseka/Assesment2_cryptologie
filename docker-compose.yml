@@ -1,0 +1,33 @@
+services:
+  rsa-server:
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+    container_name: rsa-server
+    ports:
+      - "8000:8000"
+    volumes:
+      - rsa_keys:/app/keys
+    networks:
+      - secure-net
+
+  rsa-client-demo:
+    build:
+      context: .
+      dockerfile: client/Dockerfile
+    container_name: rsa-client-demo
+    depends_on:
+      - rsa-server
+    environment:
+      - PYTHONUNBUFFERED=1
+    command: ["python", "-m", "client.app.main", "--server-url", "http://rsa-server:8000", "--message", "demo message"]
+    networks:
+      - secure-net
+
+volumes:
+  rsa_keys:
+
+networks:
+  secure-net:
+    internal: true
+
